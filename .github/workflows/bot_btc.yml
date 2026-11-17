@@ -1,0 +1,35 @@
+name: Vigilante BTC 10m
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  analizar-mercado:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar archivos del repositorio
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar librerías
+        run: pip install -r requirements.txt
+
+      - name: Ejecutar análisis de vela
+        run: python asistente_btc_10m.py
+
+      - name: Guardar resultados en el repositorio
+        run: |
+          git config user.name "Asistente BTC"
+          git config user.email "bot@users.noreply.github.com"
+          git add registro_pruebas_btc.csv
+          git diff --staged --quiet || git commit -m "Actualiza registro de pruebas BTC"
+          git push
